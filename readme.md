@@ -58,7 +58,7 @@ Dự án trò chơi đạp xe địa hình 3D tương tác kết hợp phần c�
    * Chọn đúng bo mạch ESP32 của bạn và nạp chương trình.
    * Khi hoạt động, ESP32 sẽ phát Bluetooth tên **`XeDap-Be`** và truyền dữ liệu qua cổng COM ở tốc độ `115200 baud`.
 2. **Mở game trên trình duyệt**:
-   * Truy cập link **GitHub Pages** của dự án (hoặc mở trực tiếp `index.html` / `Minh_Khang_Game_Dev.html`) bằng trình duyệt **Google Chrome** hoặc **Microsoft Edge** trên máy tính để sử dụng Web Serial / Web Bluetooth.
+   * Truy cập link https://vanphumarine.github.io/be-dap-xe-3d-esp32/ của dự án (hoặc mở trực tiếp `index.html` / `Minh_Khang_Game_Dev.html`) bằng trình duyệt **Google Chrome** hoặc **Microsoft Edge** trên máy tính để sử dụng Web Serial / Web Bluetooth.
 3. **Kết nối, điều khiển đèn, nhảy & bắn đạn**:
    * Trong giao diện game, bấm **`🔌 Serial/BT`** (hoặc **`🔵 Bluetooth`**) để kết nối với ESP32.
    * Dùng nút **`💡 Đèn`** để chọn chế độ đèn pha khi vào các màn đêm/hang tối; nhấn nút 1 lần để nhảy hoặc nhấn 2 lần nhanh để bắn đạn sao.
