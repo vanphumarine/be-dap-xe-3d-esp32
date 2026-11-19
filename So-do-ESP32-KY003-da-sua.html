@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sơ đồ đấu dây ESP32 (KY-003 đã sửa)</title>
+<style>
+:root{--bg:#f3f6fa;--p:#fff;--i:#1b2a3a;--m:#5b6b7b;--l:#d5dde6;--a:#ff7a1a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1722;--p:#1a2433;--i:#eef3f9;--m:#9fb0c2;--l:#2c3a4d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--i);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:calc(env(safe-area-inset-top,0px) + 12px) 12px calc(env(safe-area-inset-bottom,0px) + 16px);max-width:980px;margin-inline:auto}
+h1{font-size:18px;margin:4px 0 10px}
+.cd{background:var(--p);border:1px solid var(--l);border-radius:14px;padding:10px;margin-bottom:12px}
+svg{width:100%;height:auto;display:block}svg text{fill:var(--i);font-family:inherit}
+.w{fill:none;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;cursor:pointer;transition:opacity .2s}
+.tg{cursor:pointer;transition:opacity .2s}
+.dim .w,.dim .tg{opacity:.18}.dim .w.on,.dim .tg.on{opacity:1}.dim .w.on{stroke-width:6.5}
+.bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;font-size:13px;align-items:center}
+button{font:inherit;font-weight:700;font-size:13px;border:0;border-radius:10px;padding:8px 11px;background:#3a7bd5;color:#fff;cursor:pointer}
+button.o{background:var(--l);color:var(--i)}button.s{background:var(--a)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+td,th{padding:7px 6px;border-bottom:1px solid var(--l);text-align:left}th{color:var(--m);font-size:12px}
+tr.r{cursor:pointer}tr.r.on{background:rgba(255,122,26,.15)}
+.row{display:flex;align-items:center;gap:8px;font-size:13px;margin:6px 0}.row label{min-width:80px;color:var(--m)}.row input[type=range]{flex:1}
+.rd{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.rd div{border:1px solid var(--l);border-radius:10px;padding:6px;text-align:center;font-weight:700;font-size:14px;word-break:break-all}
+.rd small{display:block;font-weight:500;font-size:10px;color:var(--m)}
+.n{font-size:12px;color:var(--m);margin-top:6px;line-height:1.5}
+ul{margin:6px 0 0;padding-left:18px;font-size:13.5px;line-height:1.55}
+@media (max-width:520px){.rd{grid-template-columns:repeat(2,1fr)}}
+</style></head><body>
+<h1>🔌 Sơ đồ đấu dây ESP32: Hall + biến trở + nút nhảy</h1>
+<div class="cd">
+ <div class="bar"><b>Loại cảm biến Hall:</b><button id="vA">A3144 rời</button><button id="vK" class="o">Module KY-003</button>
+ <span style="margin-left:auto"><b>Làm nổi bật:</b></span><button class="s" data-k="5V">5V</button><button style="background:#f57c00" data-k="3V3">3V3</button><button style="background:#222" data-k="GND">GND</button></div>
+ <svg id="svg" viewBox="0 0 780 540" role="img" aria-label="Sơ đồ đấu dây ESP32"></svg>
+ <div class="n">Các thẻ cùng tên (5V, 3V3, GND) là nối chung một điểm. Thực tế dùng breadboard mini với 3 hàng ray: 5V (từ chân VIN), 3V3, GND. Dây tín hiệu giao nhau trên hình không chạm nhau. Bấm vào dây, thẻ hoặc dòng bảng để làm nổi bật.</div>
+</div>
+<div class="cd"><table id="tb"></table></div>
+<div class="cd"><b style="font-size:14px">Mô phỏng tín hiệu</b>
+ <div class="row"><label>Vòng đạp</label><input id="rpm" type="range" min="0" max="120" value="60"><span id="rv">60</span></div>
+ <div class="row"><label>Góc lái</label><input id="ang" type="range" min="-35" max="35" value="0"><span id="av">0°</span></div>
+ <div class="row"><button id="jb">👆 Giữ để bấm nút nhảy</button></div>
+ <div class="rd"><div><span id="g27">HIGH</span><small>GPIO27 (Hall)</small></div><div><span id="adc">2048</span><small>GPIO34 (ADC)</small></div><div><span id="g26">HIGH</span><small>GPIO26 (nút)</small></div><div><span id="ln">60,0.00,0</span><small>dòng gửi về game</small></div></div>
+</div>
+<div class="cd"><b style="font-size:14px">Kiểm tra trước khi cấp điện</b><ul>
+<li>Module KY-003 (cấp 5V): chân S đã có điện trở kéo lên 10kΩ sẵn, chỉ thêm <b>một</b> điện trở 20kΩ từ S xuống GND (hoặc 2 điện trở 10kΩ nối tiếp) để mức HIGH ≈ 3,3V. Không thêm điện trở nối tiếp 10kΩ vào chân S.</li>
+<li>Hall A3144 cần 5V (chân VIN), điện trở kéo lên nối vào <b>3V3</b>, không nối vào 5V.</li>
+<li>Biến trở cấp 3V3, không cấp 5V vì chân ADC của ESP32 chỉ chịu 3,3V.</li>
+<li>Nút nhấn một chân vào GPIO26, chân kia vào GND, không cần điện trở ngoài (đã bật pull-up trong code).</li>
+<li>Nhãn chân trên bo có thể khác hình, luôn đọc chữ in trên bo của bạn trước khi nối.</li></ul></div>
+<script>
+(function(){
+const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg',S=$('svg'),NC={GND:'#222','3V3':'#f57c00','5V':'#e53935'};
+function E(n,a,t,p){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(t!=null)e.textContent=t;(p||S).appendChild(e);return e}
+function W(d,c,g,n,p){return E('path',{d,class:'w',stroke:c,'data-g':g||'','data-n':n||''},null,p)}
+function tag(x,y,n,p){const g=E('g',{class:'tg','data-n':n},null,p);E('rect',{x,y:y-8,width:42,height:16,rx:8,fill:NC[n]},null,g);E('text',{x:x+21,y:y+4,'font-size':10,'font-weight':700,'text-anchor':'middle',style:'fill:#fff'},n,g)}
+function rz(x,y,w,h,t,p,up){E('rect',{x,y,width:w,height:h,fill:'#d7b98a',stroke:'#7a5a2a','stroke-width':1.5},null,p);if(t)E('text',{x:x+w/2,y:up?y-5:y+h+11,'font-size':9,'text-anchor':'middle'},t,p)}
+function T(x,y,t,s,a,p,b){return E('text',{x,y,'font-size':s||10,'text-anchor':a||'start','font-weight':b?700:400},t,p)}
+const gS=E('g',{}),gA=E('g',{}),gK=E('g',{});
+// board
+E('rect',{x:330,y:30,width:120,height:480,rx:8,fill:'#1b2430'},null,gS);E('rect',{x:360,y:498,width:60,height:22,rx:3,fill:'#9aa5b1'},null,gS);T(390,513,'USB',10,'middle',gS);
+T(390,50,'ESP32',12,'middle',gS,1).setAttribute('style','fill:#fff');
+const LP=['EN','VP','VN','D34','D35','D32','D33','D25','D26','D27','D14','D12','D13','GND','VIN'],RP=['D23','D22','TX0','RX0','D21','D19','D18','D5','TX2','RX2','D4','D2','D15','GND','3V3'];
+const US={D34:'#2e7d32',D26:'#1e88e5',D27:'#f9a825',GND:'#222',VIN:'#e53935','3V3':'#f57c00'};
+LP.forEach((l,i)=>{const y=70+28*i,u=US[l];E('circle',{cx:330,cy:y,r:u?6:3.5,fill:u||'#ccc',stroke:u?'#fff':'none','stroke-width':1.5},null,gS);T(341,y+3.5,l,10,'start',gS,u).setAttribute('style','fill:#fff')});
+RP.forEach((l,i)=>{const y=70+28*i,u=l==='3V3'?US[l]:0;E('circle',{cx:450,cy:y,r:u?6:3.5,fill:u||'#ccc',stroke:u?'#fff':'none','stroke-width':1.5},null,gS);T(439,y+3.5,l,10,'end',gS,u).setAttribute('style','fill:#fff')});
+W('M330 462 H300','#e53935','','5V',gS);tag(258,462,'5V',gS);W('M330 434 H300','#222','','GND',gS);tag(258,434,'GND',gS);W('M450 462 H480','#f57c00','','3V3',gS);tag(480,462,'3V3',gS);
+// pot
+E('circle',{cx:75,cy:154,r:34,fill:'#8e24aa'},null,gS);const kn=E('line',{x1:75,y1:154,x2:75,y2:128,stroke:'#fff','stroke-width':5,'stroke-linecap':'round'},null,gS);
+T(75,204,'Biến trở 10kΩ (cổ phuộc)',10,'middle',gS,1);T(112,121,'1',9,'start',gS);T(112,150,'2',9,'start',gS);T(112,179,'3',9,'start',gS);
+W('M109 125 H185','#222','','GND',gS);tag(185,125,'GND',gS);W('M109 183 H185','#f57c00','','3V3',gS);tag(185,183,'3V3',gS);W('M109 154 H330','#2e7d32','pot','',gS);
+// button
+E('rect',{x:30,y:250,width:90,height:70,rx:10,fill:'#cfd8e2',stroke:'#7b8794'},null,gS);const bt=E('circle',{cx:75,cy:285,r:18,fill:'#e53935'},null,gS);T(75,334,'Nút nhấn nhảy (ghi đông)',10,'middle',gS,1);
+W('M120 270 H185','#222','','GND',gS);tag(185,270,'GND',gS);W('M120 294 H330','#1e88e5','btn','',gS);
+// hall blocks
+function hb(g,name,p1,p2,p3){E('rect',{x:30,y:350,width:90,height:110,rx:8,fill:'#37474f'},null,g);T(75,408,name,13,'middle',g,1).setAttribute('style','fill:#fff');[[375,p1],[395,p2],[415,p3]].forEach(a=>T(114,a[0]+3,a[1],9,'end',g).setAttribute('style','fill:#fff'));T(75,478,'Cảm biến Hall (khung xe)',10,'middle',g,1)}
+hb(gA,'A3144','OUT','VCC','GND');
+W('M120 375 H200 V322 H330','#f9a825','hall','',gA);E('circle',{cx:200,cy:340,r:3.5,fill:'#f9a825'},null,gA);W('M200 340 H215','#f57c00','','3V3',gA);rz(215,334,36,12,'10kΩ',gA);W('M251 340 H262','#f57c00','','3V3',gA);tag(262,340,'3V3',gA);
+W('M120 395 H165','#e53935','','5V',gA);tag(165,395,'5V',gA);W('M120 415 H165','#222','','GND',gA);tag(165,415,'GND',gA);
+hb(gK,'KY-003','S','+','−');
+W('M120 375 H220','#f9a825','hall','',gK);T(125,362,'(đã có 10kΩ kéo lên trên module)',8,'start',gK);E('circle',{cx:220,cy:375,r:3.5,fill:'#f9a825'},null,gK);W('M220 375 V322 H330','#f9a825','hall','',gK);
+W('M220 375 V392','#f9a825','hall','',gK);rz(214,392,12,28,'',gK);T(232,410,'20kΩ',9,'start',gK);W('M220 420 V436','#222','','GND',gK);tag(199,436,'GND',gK);
+W('M120 395 H165','#e53935','','5V',gK);tag(165,395,'5V',gK);W('M120 415 H165','#222','','GND',gK);tag(165,415,'GND',gK);
+// highlight
+let cur=null;
+function hl(k){cur=cur===k?null:k;S.classList.toggle('dim',!!cur);S.querySelectorAll('.w,.tg').forEach(e=>e.classList.toggle('on',!!cur&&(e.dataset.g===cur||e.dataset.n===cur)));document.querySelectorAll('tr.r').forEach(r=>r.classList.toggle('on',r.dataset.k===cur))}
+S.addEventListener('click',e=>{const t=e.target.closest('[data-g],[data-n]');if(!t)return;const k=t.dataset.g||t.dataset.n;if(k)hl(k)});
+document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>hl(b.dataset.k));
+// variants
+let vk=0;
+function setV(k){vk=k;gA.style.display=k?'none':'';gK.style.display=k?'':'none';$('vA').className=k?'o':'';$('vK').className=k?'':'o';
+ const hall=k?'Hall S → GPIO27, và S → điện trở 20kΩ → GND (phân áp với 10kΩ có sẵn trên module, S ≈ 3,3V)':'Hall OUT → GPIO27, và điện trở 10kΩ nối giữa OUT và 3V3',
+ hp=k?'Hall + → VIN (5V), Hall − → GND':'Hall VCC → VIN (5V), Hall GND → GND';
+ $('tb').innerHTML='<tr><th>#</th><th>Linh kiện</th><th>Nối vào ESP32</th></tr>'+[
+ ['pot','Biến trở','chân giữa → GPIO34 (D34)'],['3V3','Biến trở','chân 3 → 3V3 (chân 1 → GND)'],['btn','Nút nhảy','một chân → GPIO26 (D26), chân còn lại → GND'],['hall','Hall tín hiệu',hall],['5V','Hall nguồn',hp],['GND','Nối đất chung','mọi GND nối vào chân GND của ESP32']].map((r,i)=>'<tr class="r" data-k="'+r[0]+'"><td>'+(i+1)+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>').join('');
+ document.querySelectorAll('tr.r').forEach(r=>r.onclick=()=>hl(r.dataset.k));cur=null;hl(null)}
+$("vA").onclick=()=>setV(0);$("vK").onclick=()=>setV(1);setV(1);
+// sim
+let ph=0,last=performance.now(),jp=0;const jb=$('jb');
+['pointerdown'].forEach(n=>jb.addEventListener(n,e=>{e.preventDefault();jp=1}));['pointerup','pointerleave','pointercancel'].forEach(n=>jb.addEventListener(n,()=>jp=0));
+function loop(t){requestAnimationFrame(loop);const dt=(t-last)/1000;last=t;const r=+$('rpm').value,a=+$('ang').value;ph=(ph+r/60*dt)%1;
+ $('rv').textContent=r;$('av').textContent=a+'°';const adc=Math.round(2048+a/35*450),st=Math.max(-1,Math.min(1,(adc-2048)/450));
+ kn.setAttribute('transform','rotate('+a*3+' 75 154)');bt.setAttribute('fill',jp?'#7a1a1a':'#e53935');bt.setAttribute('r',jp?15:18);
+ $('g27').textContent=r>0&&ph<.18?'LOW':'HIGH';$('adc').textContent=adc;$('g26').textContent=jp?'LOW':'HIGH';$('ln').textContent=r+','+st.toFixed(2)+','+jp}
+requestAnimationFrame(loop);
+})();
+</script></body></html>

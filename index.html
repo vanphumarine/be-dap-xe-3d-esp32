@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bé Đạp Xe Địa Hình 3D · ESP32 Bike Simulator</title>
+<style>
+  :root {
+    --bg: #0b1120;
+    --surface: #1e293b;
+    --surface-hover: #334155;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --accent: #f97316;
+    --accent-hover: #ea580c;
+    --blue: #3b82f6;
+    --green: #10b981;
+    --border: rgba(255, 255, 255, 0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 24px 16px 48px;
+  }
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  header {
+    text-align: center;
+    padding: 36px 20px;
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(59, 130, 246, 0.18));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    margin-bottom: 28px;
+  }
+  header h1 {
+    font-size: clamp(24px, 4vw, 34px);
+    font-weight: 800;
+    margin-bottom: 10px;
+    background: linear-gradient(90deg, #fb923c, #fde047);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  header p {
+    color: var(--muted);
+    max-width: 680px;
+    margin: 0 auto 24px;
+    font-size: 15px;
+  }
+  .cta-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    color: #fff;
+    transition: transform 0.15s, background 0.15s;
+    cursor: pointer;
+    border: none;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary { background: var(--accent); box-shadow: 0 6px 20px rgba(249, 115, 22, 0.35); }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-blue { background: var(--blue); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3); }
+  .btn-green { background: var(--green); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3); }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+  }
+  .card h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card p, .card li {
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .card ul {
+    padding-left: 18px;
+    margin-top: 8px;
+  }
+  .card li { margin-bottom: 6px; }
+  .card strong { color: var(--text); }
+  .section-title {
+    font-size: 20px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 28px;
+    font-size: 14px;
+  }
+  th, td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: rgba(15, 23, 42, 0.6);
+    color: var(--text);
+    font-weight: 700;
+  }
+  td { color: var(--muted); }
+  td code, p code, li code {
+    background: rgba(15, 23, 42, 0.8);
+    color: #38bdf8;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px;
+  }
+  .steps {
+    display: grid;
+    gap: 12px;
+  }
+  .step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px;
+    border-radius: 14px;
+  }
+  .step-num {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+  footer {
+    text-align: center;
+    margin-top: 36px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🚵 Bé Đạp Xe Địa Hình 3D · ESP32 Bike Simulator</h1>
+    <p>Dự án trò chơi đạp xe địa hình 3D tương tác kết hợp phần cứng <strong>ESP32</strong> giúp bé vận động tại nhà. Hỗ trợ chơi trực tiếp bằng bàn phím, tay cầm, <strong>Web Serial</strong> hoặc <strong>Bluetooth SPP</strong>.</p>
+    <div class="cta-group">
+      <a class="btn btn-primary" href="Minh_Khang_Game_Dev.html">🎮 Chơi Game 3D Ngay</a>
+      <a class="btn btn-blue" href="So-do-ESP32-KY003-da-sua.html">🔌 Sơ Đồ Đấu Dây Tương Tác</a>
+      <a class="btn btn-green" href="Minh_Khang_Game_Dev_Esp32code.ino" download>📥 Tải Code ESP32 (.ino)</a>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h2>🎮 Game 3D Cinematic</h2>
+      <ul>
+        <li><strong>20 màn chơi</strong> theo chủ đề cùng chế độ <strong>Khám phá tự do</strong> 5 khu vực và nhiệm vụ thu thập.</li>
+        <li>Tùy chỉnh <strong>nhân vật, màu áo/mũ, loại xe</strong>, hồ sơ riêng cho từng bé và 4 góc nhìn camera.</li>
+        <li>Tích hợp bảng <strong>Hiệu chỉnh</strong> góc lái Trái/Thẳng/Phải và thanh trượt <strong>Gain</strong> vòng đạp.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>🔌 Sơ Đồ Đấu Dây ESP32</h2>
+      <ul>
+        <li>Hỗ trợ chuyển đổi trực quan giữa <strong>Module KY-003</strong> và cảm biến <strong>Hall A3144 rời</strong>.</li>
+        <li>Chạm vào từng dây nguồn (<code>5V</code>, <code>3V3</code>, <code>GND</code>) hoặc chân tín hiệu để làm nổi bật đường đi.</li>
+        <li>Tích hợp bộ <strong>mô phỏng tín hiệu</strong> (vòng đạp, góc lái, nút nhảy) ngay trên trình duyệt.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>⚙️ Firmware ESP32</h2>
+      <ul>
+        <li>Đọc xung vòng đạp qua <strong>cảm biến Hall</strong>, góc lái qua <strong>biến trở 10kΩ</strong> và <strong>nút nhấn nhảy</strong> có chống dội.</li>
+        <li>Gửi dữ liệu mỗi <code>30ms</code> ở tốc độ <code>115200 baud</code> qua cả cổng USB và Bluetooth (<code>XeDap-Be</code>).</li>
+        <li>Định dạng gói tin: <code>vong_phut,ADC_tho,nut_nhay,1</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="section-title">📌 Bảng Kết Nối Phần Cứng ESP32</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Linh kiện</th>
+        <th>Chân ESP32</th>
+        <th>Hướng dẫn đấu nối &amp; Lưu ý an toàn</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Cảm biến Hall (Tín hiệu)</strong></td>
+        <td><code>GPIO27</code> (D27)</td>
+        <td>Nếu dùng module <strong>KY-003</strong> (cấp 5V), nối thêm 1 điện trở <code>20kΩ</code> từ chân <code>S</code> xuống <code>GND</code> để hạ mức HIGH về ~<code>3.3V</code>. Nếu dùng <strong>A3144</strong> rời, kéo trở <code>10kΩ</code> lên <code>3V3</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>Biến trở góc lái 10kΩ</strong></td>
+        <td><code>GPIO34</code> (D34)</td>
+        <td>Chân giữa nối <code>GPIO34</code>, hai chân bìa nối <code>3V3</code> và <code>GND</code>. <strong>Tuyệt đối không cấp 5V</strong> vì chân ADC của ESP32 chỉ chịu tối đa <code>3.3V</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>Nút nhấn nhảy</strong></td>
+        <td><code>GPIO26</code> (D26)</td>
+        <td>Một chân nối <code>GPIO26</code>, chân còn lại nối <code>GND</code> (code đã bật sẵn <code>INPUT_PULLUP</code>, không cần trở ngoài).</td>
+      </tr>
+      <tr>
+        <td><strong>Nguồn &amp; Mass chung</strong></td>
+        <td><code>VIN</code> / <code>3V3</code> / <code>GND</code></td>
+        <td>Cấp <code>5V</code> (chân <code>VIN</code>) cho cảm biến Hall; nối chung tất cả dây <code>GND</code> về chân <code>GND</code> của ESP32.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="section-title">🚀 Hướng Dẫn Cài Đặt &amp; Sử Dụng Nhanh</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <strong>Nạp code cho ESP32:</strong> Mở file <code>Minh_Khang_Game_Dev_Esp32code.ino</code> bằng Arduino IDE, chọn đúng bo mạch ESP32 và nạp chương trình. Khi chạy, ESP32 sẽ phát Bluetooth tên <code>XeDap-Be</code> đồng thời xuất dữ liệu qua cổng USB Serial.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <strong>Mở Game trên trình duyệt Chrome hoặc Edge:</strong> Bấm nút <strong>🎮 Chơi Game 3D Ngay</strong> ở đầu trang (cần dùng Chrome/Edge trên máy tính để hỗ trợ Web Serial / Web Bluetooth).
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <strong>Kết nối &amp; Hiệu chỉnh góc lái:</strong> Trong giao diện game, bấm <strong>🔌 Serial/BT</strong> (hoặc <strong>🔵 Bluetooth</strong>) để kết nối với ESP32. Sau đó mở <strong>🎛️ Hiệu chỉnh</strong>, quay ghi đông lần lượt sang <em>Hết Trái</em>, <em>Thẳng</em>, <em>Hết Phải</em> để lưu góc lái và điều chỉnh <em>Gain</em> vòng đạp phù hợp với sức của bé.
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Chia sẻ miễn phí cho cộng đồng Maker &amp; Phụ huynh · Bé Đạp Xe Địa Hình 3D
+  </footer>
+</div>
+</body>
+</html>
