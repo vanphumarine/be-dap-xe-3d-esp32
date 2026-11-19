@@ -47,7 +47,7 @@
   }
   header p {
     color: var(--muted);
-    max-width: 680px;
+    max-width: 700px;
     margin: 0 auto 24px;
     font-size: 15px;
   }
@@ -179,7 +179,7 @@
 <div class="container">
   <header>
     <h1>🚵 Bé Đạp Xe Địa Hình 3D · ESP32 Bike Simulator</h1>
-    <p>Dự án trò chơi đạp xe địa hình 3D tương tác kết hợp phần cứng <strong>ESP32</strong> giúp bé vận động tại nhà. Hỗ trợ chơi trực tiếp bằng bàn phím, tay cầm, <strong>Web Serial</strong> hoặc <strong>Bluetooth SPP</strong>.</p>
+    <p>Dự án trò chơi đạp xe địa hình 3D tương tác kết hợp phần cứng <strong>ESP32</strong> giúp bé vận động tại nhà. Hỗ trợ đèn pha chiếu sáng ban đêm, thao tác nhấn nút 2 lần để bắn đạn và điều khiển qua bàn phím, tay cầm, <strong>Web Serial</strong> hoặc <strong>Bluetooth SPP</strong>.</p>
     <div class="cta-group">
       <a class="btn btn-primary" href="Minh_Khang_Game_Dev.html">🎮 Chơi Game 3D Ngay</a>
       <a class="btn btn-blue" href="So-do-ESP32-KY003-da-sua.html">🔌 Sơ Đồ Đấu Dây Tương Tác</a>
@@ -191,9 +191,9 @@
     <div class="card">
       <h2>🎮 Game 3D Cinematic</h2>
       <ul>
-        <li><strong>20 màn chơi</strong> theo chủ đề cùng chế độ <strong>Khám phá tự do</strong> 5 khu vực và nhiệm vụ thu thập.</li>
-        <li>Tùy chỉnh <strong>nhân vật, màu áo/mũ, loại xe</strong>, hồ sơ riêng cho từng bé và 4 góc nhìn camera.</li>
-        <li>Tích hợp bảng <strong>Hiệu chỉnh</strong> góc lái Trái/Thẳng/Phải và thanh trượt <strong>Gain</strong> vòng đạp.</li>
+        <li><strong>💡 Đèn ban đêm</strong>: Tự động bật đèn pha chiếu sáng mặt đường và quầng sáng khi vào màn tối hoặc khu núi lửa; có thể chuyển chế độ <em>Tự động / BẬT / TẮT</em> ngay trên thanh điều khiển.</li>
+        <li><strong>💥 Nhấn nút 2 lần bắn đạn</strong>: Nhấn nút hành động (nút <code>⤴</code> trên màn hình, phím <code>Space</code> hoặc nút cứng trên xe ESP32) 2 lần liên tiếp nhanh để bắn đạn sao phá đá, gỗ, thú cản đường hoặc đẩy lùi thú đuổi phía sau (cộng sao khi bắn trúng).</li>
+        <li><strong>20 màn chơi</strong> theo chủ đề cùng chế độ <strong>Khám phá tự do</strong> 5 khu vực, tùy chỉnh nhân vật/xe và bảng <strong>Hiệu chỉnh</strong>.</li>
       </ul>
     </div>
 
@@ -202,16 +202,16 @@
       <ul>
         <li>Hỗ trợ chuyển đổi trực quan giữa <strong>Module KY-003</strong> và cảm biến <strong>Hall A3144 rời</strong>.</li>
         <li>Chạm vào từng dây nguồn (<code>5V</code>, <code>3V3</code>, <code>GND</code>) hoặc chân tín hiệu để làm nổi bật đường đi.</li>
-        <li>Tích hợp bộ <strong>mô phỏng tín hiệu</strong> (vòng đạp, góc lái, nút nhảy) ngay trên trình duyệt.</li>
+        <li>Tích hợp bộ <strong>mô phỏng tín hiệu</strong> (vòng đạp, góc lái, nút nhấn nhảy/bắn đạn) ngay trên trình duyệt.</li>
       </ul>
     </div>
 
     <div class="card">
       <h2>⚙️ Firmware ESP32</h2>
       <ul>
-        <li>Đọc xung vòng đạp qua <strong>cảm biến Hall</strong>, góc lái qua <strong>biến trở 10kΩ</strong> và <strong>nút nhấn nhảy</strong> có chống dội.</li>
-        <li>Gửi dữ liệu mỗi <code>30ms</code> ở tốc độ <code>115200 baud</code> qua cả cổng USB và Bluetooth (<code>XeDap-Be</code>).</li>
-        <li>Định dạng gói tin: <code>vong_phut,ADC_tho,nut_nhay,1</code>.</li>
+        <li>Đọc xung vòng đạp qua <strong>cảm biến Hall</strong>, góc lái qua <strong>biến trở 10kΩ</strong> và <strong>nút nhấn</strong> có chống dội.</li>
+        <li>Nhấn nút 1 lần để nhảy qua chướng ngại vật, nhấn 2 lần nhanh để bắn đạn sao trong game.</li>
+        <li>Gửi dữ liệu mỗi <code>30ms</code> ở tốc độ <code>115200 baud</code> qua cả cổng USB và Bluetooth (<code>XeDap-Be</code>) theo định dạng <code>vong_phut,ADC_tho,nut_nhay,1</code>.</li>
       </ul>
     </div>
   </div>
@@ -237,9 +237,9 @@
         <td>Chân giữa nối <code>GPIO34</code>, hai chân bìa nối <code>3V3</code> và <code>GND</code>. <strong>Tuyệt đối không cấp 5V</strong> vì chân ADC của ESP32 chỉ chịu tối đa <code>3.3V</code>.</td>
       </tr>
       <tr>
-        <td><strong>Nút nhấn nhảy</strong></td>
+        <td><strong>Nút nhấn (Nhảy / Nhấn 2 lần bắn đạn)</strong></td>
         <td><code>GPIO26</code> (D26)</td>
-        <td>Một chân nối <code>GPIO26</code>, chân còn lại nối <code>GND</code> (code đã bật sẵn <code>INPUT_PULLUP</code>, không cần trở ngoài).</td>
+        <td>Một chân nối <code>GPIO26</code>, chân còn lại nối <code>GND</code> (code đã bật sẵn <code>INPUT_PULLUP</code>, không cần trở ngoài). Nhấn 1 lần để nhảy, nhấn 2 lần nhanh liên tiếp để bắn đạn.</td>
       </tr>
       <tr>
         <td><strong>Nguồn &amp; Mass chung</strong></td>
@@ -266,7 +266,7 @@
     <div class="step">
       <div class="step-num">3</div>
       <div>
-        <strong>Kết nối &amp; Hiệu chỉnh góc lái:</strong> Trong giao diện game, bấm <strong>🔌 Serial/BT</strong> (hoặc <strong>🔵 Bluetooth</strong>) để kết nối với ESP32. Sau đó mở <strong>🎛️ Hiệu chỉnh</strong>, quay ghi đông lần lượt sang <em>Hết Trái</em>, <em>Thẳng</em>, <em>Hết Phải</em> để lưu góc lái và điều chỉnh <em>Gain</em> vòng đạp phù hợp với sức của bé.
+        <strong>Kết nối, bật đèn &amp; thao tác:</strong> Trong giao diện game, bấm <strong>🔌 Serial/BT</strong> (hoặc <strong>🔵 Bluetooth</strong>) để kết nối với ESP32; dùng nút <strong>💡 Đèn</strong> để đổi chế độ đèn pha khi đi màn tối; nhấn nút 1 lần để nhảy hoặc nhấn 2 lần nhanh để bắn đạn. Mở <strong>🎛️ Hiệu chỉnh</strong> để lưu góc lái và điều chỉnh <em>Gain</em> vòng đạp phù hợp với sức của bé.
       </div>
     </div>
   </div>
